@@ -49,8 +49,29 @@ connectDB().then(async () => {
 });
 
 // Middleware
-app.use(helmet({ crossOriginResourcePolicy: false })); // Allow serving images cross origin
-app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowedOrigins = [
+        ENV.CLIENT_URL,
+        ENV.CLIENT_URL ? ENV.CLIENT_URL.replace(/\/$/, '') : null,
+        'http://localhost:5173',
+        'http://localhost:3000',
+      ].filter(Boolean);
+
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.onrender.com') ||
+        ENV.NODE_ENV !== 'production'
+      ) {
+        return callback(null, origin);
+      }
+      return callback(null, origin);
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

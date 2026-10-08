@@ -27,6 +27,7 @@ import Product from './models/Product.js';
 import Category from './models/Category.js';
 import { populateSeedData } from './utils/seedData.js';
 import path from 'path';
+import fs from 'fs';
 
 const app = express();
 // Connected to database easycart1 - reloading configuration
@@ -114,10 +115,29 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Root route
-app.get('/', (req, res) => {
-  res.send('EasyCart API is running...');
-});
+// Static frontend serving in production (Unified fullstack deployment)
+const candidateDistPaths = [
+  path.join(__dirname, 'client', 'dist'),
+  path.join(__dirname, '..', 'client', 'dist'),
+];
+const clientDistPath = candidateDistPaths.find((p) => fs.existsSync(p));
+
+if (clientDistPath) {
+  console.log(`Serving static frontend build from: ${clientDistPath}`);
+  app.use(express.static(clientDistPath));
+
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.resolve(clientDistPath, 'index.html'));
+  });
+} else {
+  // Root route fallback for API-only mode
+  app.get('/', (req, res) => {
+    res.send('EasyCart API is running...');
+  });
+}
 
 // Error Handling Middleware
 app.use(notFound);

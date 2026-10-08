@@ -1,8 +1,11 @@
 {
   "name": "easycart",
   "version": "1.0.0",
-  "description": "EasyCart Root Workspace",
+  "description": "EasyCart Unified Full-Stack Application",
+  "type": "module",
   "scripts": {
+    "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client",
+    "start": "node server/server.js",
     "client": "npm run dev --prefix client",
     "server": "npm run dev --prefix server",
     "dev": "concurrently \"npm run server\" \"npm run client\"",

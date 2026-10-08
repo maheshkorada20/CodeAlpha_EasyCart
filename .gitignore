@@ -11,6 +11,8 @@ server/node_modules/
 .env.production.local
 server/.env
 client/.env.local
+!client/.env.production
+!client/.env.development
 
 # Production build outputs
 dist/
